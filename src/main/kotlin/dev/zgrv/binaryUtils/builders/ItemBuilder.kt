@@ -3,6 +3,7 @@ package dev.zgrv.binaryUtils.builders
 import dev.zgrv.binaryUtils.ability.Ability
 import dev.zgrv.binaryUtils.ability.AbilityContainer
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
@@ -22,16 +23,22 @@ import java.util.*
  */
 class ItemBuilder(
     private val material: Material,
-    private val amount: Int = 1,
 ) {
     private val item: ItemStack = ItemStack(material)
-    private lateinit var meta: ItemMeta
+    private val meta: ItemMeta = item.itemMeta
     private val abilityContainer: AbilityContainer = AbilityContainer()
     private val lore: MutableMap<LoreSection, MutableList<Component>> = mutableMapOf()
     private val attributes: MutableMap<Attribute, AttributeModifier> = EnumMap(Attribute::class.java)
 
 
-    init {
+    /**
+     * Sets the name of ItemStack
+     */
+    fun name(component: Component) {
+        meta.itemName(component)
+    }
+
+    fun amount(amount: Int) {
         if (amount > item.maxStackSize)
             throw RuntimeException("Amount of ItemStack(${item.type}) must be less than ${item.maxStackSize}")
         else item.amount = amount
@@ -39,13 +46,6 @@ class ItemBuilder(
 
     fun lore(component: Component) {
         lore(LoreSection.DESCRIPTION, component)
-    }
-
-    /**
-     * Sets the name of ItemStack
-     */
-    fun name(component: Component) {
-        meta.itemName(component)
     }
 
     /**
@@ -94,8 +94,9 @@ class ItemBuilder(
     /**
      * Enum class for describing lore sections
      * */
-    private enum class LoreSection {
-        DESCRIPTION, ABILITY
+    private enum class LoreSection(val priority: Int) {
+        DESCRIPTION(1),
+        ABILITY(2)
     }
 
 
@@ -136,10 +137,29 @@ class ItemBuilder(
         attributes.forEach { meta.addAttributeModifier(it.key, it.value) }
     }
 
-    fun build() {
-        applyAttributes()
 
-        item.itemMeta = meta
+    private val loreDivider = Component.text("----------------------").decoration(TextDecoration.ITALIC, false)
+    private fun applyLore() {
+        val result = lore.keys
+            .sortedBy { it.priority }
+            .flatMap { section ->
+                val rows = lore[section].orEmpty() // Используем orEmpty(), чтобы избежать null
+                rows + loreDivider
+            }
+
+        meta.lore(result)
     }
 
+    fun build(): ItemStack {
+        applyAttributes()
+        applyLore()
+
+        item.itemMeta = meta
+        return item
+    }
+}
+
+
+inline fun item(material: Material, builder: ItemBuilder.() -> Unit): ItemStack {
+    return ItemBuilder(material).apply(builder).build()
 }

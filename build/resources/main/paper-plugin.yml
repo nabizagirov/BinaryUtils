@@ -1,4 +1,0 @@
-name: BinaryUtils
-version: '1.0'
-main: dev.zgrv.binaryUtils.BinaryUtils
-api-version: '1.21'
