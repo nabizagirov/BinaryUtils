@@ -21,17 +21,21 @@ open class AbilityContainer : Serializable {
     }
 
     /**
-     * Adds an ability to the container
+     * Adds an ability to the container. Container is simple MutableSet.
      *
      * @param ability The ability that will be added to the container.
+     *
+     * @return Boolean - the ability has been added or not
      */
-    open fun add(ability: Ability) {
-        abilities.add(ability)
+    open fun add(ability: Ability): Boolean {
+        return abilities.add(ability)
     }
 
     /**
      * Shows all abilities in the container
+     *
+     * @return List of abilities
      */
-    open fun list(): Set<Ability> = abilities.toSet()
+    open fun list() = abilities.toList()
 
 }

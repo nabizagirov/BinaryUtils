@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     kotlin("jvm") version "2.0.20"
     id("com.github.johnrengelman.shadow") version "8.1.1"
@@ -37,4 +39,8 @@ tasks.processResources {
     filesMatching("paper-plugin.yml") {
         expand(props)
     }
+}
+
+tasks.withType<ShadowJar> {
+    destinationDirectory.set(file("C:/Users/User/Desktop/server/plugins"))
 }
