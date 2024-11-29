@@ -143,7 +143,7 @@ class ItemBuilder(
         val result = lore.keys
             .sortedBy { it.priority }
             .flatMap { section ->
-                val rows = lore[section].orEmpty() // Используем orEmpty(), чтобы избежать null
+                val rows = lore[section].orEmpty()
                 rows + loreDivider
             }
 
